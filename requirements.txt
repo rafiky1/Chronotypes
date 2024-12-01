@@ -1,0 +1,1 @@
+streamlitpandasnumpy matplotlib.pyplotseaborntrain_test_splitRandomForestClassifierRandomForestRegressorKMeansPCALabelEncoderStandardScalerclassification_report mean_squared_errorKNeighborsRegressorplotly.expressplotly.graph_objects
