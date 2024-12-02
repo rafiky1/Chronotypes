@@ -1,3 +1,4 @@
+#(Youssef)
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,7 +14,7 @@ from sklearn.neighbors import KNeighborsRegressor
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Title and description
+# Title and description (Youssef/Justin/Sydney)
 st.title("Chronotypes Analysis: Night Owls vs. Early Birds")
 st.write(
     """
@@ -32,7 +33,7 @@ st.write(
     """
 )
 
-# Load dataset
+# Load dataset (Youssef)
 data_url = "https://raw.githubusercontent.com/C0D3Dr4G0N/SCSU-CSC398/refs/heads/main/wearable_tech_sleep_quality_1%201.csv"
 try:
     data = pd.read_csv(data_url)
@@ -43,7 +44,7 @@ except Exception as e:
     st.error(f"Error loading dataset: {e}")
     st.stop()
 
-# Define chronotypes
+# Define chronotypes (Youssef)
 def classify_chronotype(row):
     if row['Bedtime_Consistency'] > 0.7 and row['Sleep_Duration_Hours'] >= 7:
         return 'Early Bird'
@@ -52,14 +53,14 @@ def classify_chronotype(row):
     else:
         return 'Intermediate'
 
-# Add chronotype column
+# Add chronotype column (Youssef)
 try:
     data['Chronotype'] = data.apply(classify_chronotype, axis=1)
 except Exception as e:
     st.error(f"Error classifying chronotypes: {e}")
     st.stop()
 
-# Visualizations
+# Visualizations (Youssef)
 st.subheader("Chronotype Distribution")
 st.write("Explore the distribution of chronotypes in the dataset.")
 chronotype_counts = data['Chronotype'].value_counts()
@@ -67,7 +68,7 @@ fig = go.Figure(go.Pie(labels=chronotype_counts.index, values=chronotype_counts.
 fig.update_layout(title_text="Chronotype Distribution")
 st.plotly_chart(fig)
 
-# Correlation heatmap
+# Correlation heatmap (Youssef)
 st.subheader("Correlation Heatmap")
 st.write("This heatmap shows relationships between numerical features in the dataset.")
 try:
@@ -79,7 +80,7 @@ except Exception as e:
     st.error(f"Error generating correlation heatmap: {e}")
 
 
-# Sleep Quality and HRV Comparison
+# Sleep Quality and HRV Comparison (Sydney)
 st.subheader("Sleep Quality and HRV Comparison")
 st.write("Comparing sleep quality and HRV across chronotypes.")
 if 'Sleep_Quality_Score' in data.columns and 'Heart_Rate_Variability' in data.columns:
@@ -96,7 +97,7 @@ if 'Sleep_Quality_Score' in data.columns and 'Heart_Rate_Variability' in data.co
 else:
   st.write("Sleep Quality Score or Heart Rate Variability not found in the dataset.")
 
-#Sleep Cycle Visualization
+#Sleep Cycle Visualization (Sydney/Youssef)
 st.subheader("Sleep Cycle Visualization")
 st.write("Explore how your sleep is distributed across different stages throughout the night.")
 
@@ -141,7 +142,7 @@ else:
     st.warning("The 'Sleep_Duration_Hours' column is missing in the dataset. Please ensure it is included.")
 
 
-#Sleep Quality vs. Light Exposure (Scatter Plot with Regression Line)
+#Sleep Quality vs. Light Exposure (Scatter Plot with Regression Line) (Justin)
 st.subheader("Sleep Quality vs. Light Exposure")
 st.write("Analyze the relationship between light exposure and sleep quality.")
 
@@ -174,7 +175,7 @@ else:
     st.warning("Required columns ('Sleep_Quality_Score' or 'Light_Exposure_hours') are missing from the dataset.")
 
 
-# Clustering analysis
+# Clustering analysis (Youssef)
 st.subheader("Clustering Analysis")
 st.write("Grouping individuals based on sleep and stress patterns.")
 kmeans_features = ['Heart_Rate_Variability', 'Stress_Level', 'Sleep_Duration_Hours']
@@ -199,7 +200,7 @@ except Exception as e:
 
 
 
-# Chronotype prediction
+# Chronotype prediction (Youssef)
 st.subheader("Predicting Chronotypes")
 st.write("Building a Random Forest model to predict chronotypes based on sleep and stress metrics.")
 chronotype_features = ['Heart_Rate_Variability', 'Stress_Level', 'Sleep_Duration_Hours', 'Bedtime_Consistency']
@@ -214,7 +215,7 @@ try:
 except Exception as e:
     st.error(f"Error during chronotype prediction: {e}")
 
-#Advanced Visualizations 
+#Advanced Visualizations (Youssef)
 st.subheader("Advanced Visualizations")
 st.write("Analyze how sleep duration varies across different chronotypes over time.")
 
@@ -251,7 +252,7 @@ except Exception as e:
 
 
 
-# Visualize the user's position on the clustering plot
+# Visualize the user's position on the clustering plot (Youssef)
 try:
     st.subheader("Input Your Data for Cluster Visualization")
     # Get user inputs
@@ -295,7 +296,7 @@ except Exception as e:
 
 
 
-# Add a habit tracker section
+# Add a habit tracker section (Youssef)
 st.subheader("Habit Tracker and Optimization Suggestions")
 st.write("Log your habits and receive personalized suggestions for better sleep and lower stress.")
 
@@ -323,7 +324,7 @@ if st.button("Submit Habit Log"):
 
 
 # Train Machine Learning on the data, then using user input, spit out a
-# predicted sleep score, user uses sliders to see how the sleep score changes
+# predicted sleep score, user uses sliders to see how the sleep score changes (Justin/Youssef)
 
 ### Using these data because these are values that the "patient" can control
 st.subheader("Predict Your Sleep Quality Score")
