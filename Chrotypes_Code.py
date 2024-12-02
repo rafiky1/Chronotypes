@@ -14,7 +14,7 @@ from sklearn.neighbors import KNeighborsRegressor
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Title and description (Youssef/Justin/Sydney)
+# Title and description (Youssef)
 st.title("Chronotypes Analysis: Night Owls vs. Early Birds")
 st.write(
     """
