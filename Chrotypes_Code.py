@@ -1,4 +1,3 @@
-#(Youssef)
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,21 +14,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Title and description (Youssef)
-st.title("Chronotypes Analysis: Night Owls vs. Early Birds")
+st.title("Chronotypes and Sleep Quality Scores")
 st.write(
     """
     This application analyzes wearable data to explore chronotypes, sleep quality, and stress levels. It includes advanced visualizations and machine learning predictions.
-### Chronotype Categories:
-- **Early Bird**: Early sleepers who maintain a consistent bedtime and get 7+ hours of sleep.
-- **Night Owl**: Late sleepers with inconsistent bedtimes and shorter sleep durations.
-- **Intermediate**: Those who fall between the two extremes.
+###
+    Exploring how wearable technology data can help us understand and improve sleep patterns and stress management.
 
-### How We Measure Chronotypes:
-1. **Bedtime Consistency**: Measures how consistent your bedtime is (scale: 0 to 1). A higher score means you go to bed around the same time daily.
-2. **Sleep Duration**: Total hours of sleep per night.
-   - **Early Bird**: Bedtime Consistency > 0.7 and Sleep Duration ≥ 7 hours.
-   - **Night Owl**: Bedtime Consistency < 0.4 and Sleep Duration < 7 hours.
-   - **Intermediate**: All others.
     """
 )
 
@@ -60,13 +51,42 @@ except Exception as e:
     st.error(f"Error classifying chronotypes: {e}")
     st.stop()
 
-# Visualizations (Youssef)
+# Chronotype Distribution (Youssef)
 st.subheader("Chronotype Distribution")
 st.write("Explore the distribution of chronotypes in the dataset.")
 chronotype_counts = data['Chronotype'].value_counts()
 fig = go.Figure(go.Pie(labels=chronotype_counts.index, values=chronotype_counts.values, hole=0.3))
 fig.update_layout(title_text="Chronotype Distribution")
 st.plotly_chart(fig)
+
+# Sleep Quality, Caffeine Intake and Sleep Duration Comparison (Sydney)
+st.subheader("Sleep Quality, Caffeine Intake and Sleep Duration Comparison")
+st.write("Comparing sleep quality, caffeine intake, and sleep duration across chronotypes.")
+if 'Sleep_Quality_Score' in data.columns and 'Caffeine_Intake_mg' in data.columns and 'Sleep_Duration_Hours' in data.columns:
+    data['Sleep_Quality_Score'] = data['Sleep_Quality_Score'].astype(float)
+    data['Caffeine_Intake_mg'] = data['Caffeine_Intake_mg'].astype(float)
+    data['Sleep_Duration_Hours'] = data['Sleep_Duration_Hours'].astype(float)
+    st.subheader("Sleep Quality vs Caffeine Intake vs Sleep Duration")
+    st.write("This bubble chart shows the relationship between sleep quality, caffeine intake, and sleep duration.")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bubble_chart = sns.scatterplot(
+        x='Caffeine_Intake_mg', 
+        y='Sleep_Quality_Score', 
+        size='Sleep_Duration_Hours', 
+        hue='Sleep_Duration_Hours',
+        sizes=(20, 200),
+        alpha=0.5,
+        data=data, 
+        ax=ax
+    )
+    ax.set_title("Sleep Quality vs Caffeine Intake vs Sleep Duration")
+    ax.set_xlabel("Caffeine Intake (mg)")
+    ax.set_ylabel("Sleep Quality Score")
+    ax.legend(title="Sleep Duration (Hours)")
+    st.pyplot(fig)
+else:
+    st.write("Sleep Quality Score, Caffeine Intake, or Sleep Duration not found in the dataset.")
+
 
 # Correlation heatmap (Youssef)
 st.subheader("Correlation Heatmap")
@@ -80,24 +100,8 @@ except Exception as e:
     st.error(f"Error generating correlation heatmap: {e}")
 
 
-# Sleep Quality and HRV Comparison (Sydney)
-st.subheader("Sleep Quality and HRV Comparison")
-st.write("Comparing sleep quality and HRV across chronotypes.")
-if 'Sleep_Quality_Score' in data.columns and 'Heart_Rate_Variability' in data.columns:
-  data['Sleep_Quality_Score'] = data['Sleep_Quality_Score'].astype(float)
-  data['Heart_Rate_Variability'] = data['Heart_Rate_Variability'].astype(float)
-  st.write("Sleep Quality vs HRV Comparison")
-  st.write("This scatter plot shows the relationship between sleep quality and HRV.")
-  fig, ax = plt.subplots(figsize=(8, 6))
-  sns.scatterplot(x='Heart_Rate_Variability', y='Sleep_Quality_Score', data=data, ax=ax)
-  ax.set_title("Sleep Quality vs HRV Comparison")
-  ax.set_xlabel("Heart Rate Variability")
-  ax.set_ylabel("Sleep Quality Score")
-  st.pyplot(fig)
-else:
-  st.write("Sleep Quality Score or Heart Rate Variability not found in the dataset.")
 
-#Sleep Cycle Visualization (Sydney/Youssef)
+#Sleep Cycle Visualization (Sydney)
 st.subheader("Sleep Cycle Visualization")
 st.write("Explore how your sleep is distributed across different stages throughout the night.")
 
@@ -142,38 +146,6 @@ else:
     st.warning("The 'Sleep_Duration_Hours' column is missing in the dataset. Please ensure it is included.")
 
 
-#Sleep Quality vs. Light Exposure (Scatter Plot with Regression Line) (Justin)
-st.subheader("Sleep Quality vs. Light Exposure")
-st.write("Analyze the relationship between light exposure and sleep quality.")
-
-if 'Sleep_Quality_Score' in data.columns and 'Light_Exposure_hours' in data.columns:
-    try:
-        # Scatter plot with regression line
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.scatterplot(
-            x='Light_Exposure_hours',
-            y='Sleep_Quality_Score',
-            data=data,
-            alpha=0.6,
-            ax=ax
-        )
-        sns.regplot(
-            x='Light_Exposure_hours',
-            y='Sleep_Quality_Score',
-            data=data,
-            scatter=False,
-            color='red',
-            ax=ax
-        )
-        ax.set_title("Sleep Quality vs Light Exposure", fontsize=16)
-        ax.set_xlabel("Light Exposure (hours)", fontsize=12)
-        ax.set_ylabel("Sleep Quality Score", fontsize=12)
-        st.pyplot(fig)
-    except Exception as e:
-        st.error(f"An error occurred while generating the Sleep Quality vs Light Exposure plot: {e}")
-else:
-    st.warning("Required columns ('Sleep_Quality_Score' or 'Light_Exposure_hours') are missing from the dataset.")
-
 
 # Clustering analysis (Youssef)
 st.subheader("Clustering Analysis")
@@ -197,60 +169,6 @@ try:
     st.plotly_chart(cluster_fig)
 except Exception as e:
     st.error(f"Error during clustering analysis: {e}")
-
-
-
-# Chronotype prediction (Youssef)
-st.subheader("Predicting Chronotypes")
-st.write("Building a Random Forest model to predict chronotypes based on sleep and stress metrics.")
-chronotype_features = ['Heart_Rate_Variability', 'Stress_Level', 'Sleep_Duration_Hours', 'Bedtime_Consistency']
-try:
-    X = data[chronotype_features].dropna()
-    y = LabelEncoder().fit_transform(data['Chronotype'].dropna())
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-    classifier = RandomForestClassifier(random_state=42)
-    classifier.fit(X_train, y_train)
-    y_pred = classifier.predict(X_test)
-    st.text(classification_report(y_test, y_pred, target_names=['Early Bird', 'Intermediate', 'Night Owl']))
-except Exception as e:
-    st.error(f"Error during chronotype prediction: {e}")
-
-#Advanced Visualizations (Youssef)
-st.subheader("Advanced Visualizations")
-st.write("Analyze how sleep duration varies across different chronotypes over time.")
-
-try:
-    # Ensure the data includes the 'Chronotype' column
-    if 'Chronotype' in data.columns:
-        # Create a line plot to visualize sleep trends by chronotype
-        advanced_fig = px.line(
-            data,
-            x=np.arange(len(data)),  # Assuming chronological order of entries
-            y='Sleep_Duration_Hours',
-            color='Chronotype',
-            title="Sleep Duration Trends by Chronotype",
-            labels={
-                'x': 'Entry Index', 
-                'Sleep_Duration_Hours': 'Sleep Duration (Hours)', 
-                'Chronotype': 'Chronotype'
-            }
-        )
-        # Update layout for better visualization
-        #using record index since we don't have dates or times of sleep logs in out dataset
-        advanced_fig.update_layout(
-            xaxis_title="Record Index (Chronological Order)",
-            yaxis_title="Sleep Duration (Hours)",
-            legend_title="Chronotype",
-            template="plotly_white"
-        )
-        # Display the chart
-        st.plotly_chart(advanced_fig)
-    else:
-        st.warning("The 'Chronotype' column is missing in the dataset. Please ensure chronotypes are defined.")
-except Exception as e:
-    st.error(f"An error occurred while generating the visualization: {e}")
-
-
 
 # Visualize the user's position on the clustering plot (Youssef)
 try:
@@ -295,67 +213,303 @@ except Exception as e:
     st.error(f"Error visualizing your cluster position: {e}")
 
 
+# Chronotype prediction (Youssef)
+st.subheader("Predict Your Chronotype")
+st.write("Building a Random Forest model to predict chronotypes based on sleep and stress metrics.")
 
-# Add a habit tracker section (Youssef)
-st.subheader("Habit Tracker and Optimization Suggestions")
-st.write("Log your habits and receive personalized suggestions for better sleep and lower stress.")
+chronotype_features = ['Heart_Rate_Variability', 'Stress_Level', 'Sleep_Duration_Hours', 'Bedtime_Consistency']
+try:
+    X = data[chronotype_features].dropna()
+    y = LabelEncoder().fit_transform(data['Chronotype'].dropna())
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    classifier = RandomForestClassifier(random_state=42)
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    st.text(classification_report(y_test, y_pred, target_names=['Early Bird', 'Intermediate', 'Night Owl']))
+except Exception as e:
+    st.error(f"Error during chronotype prediction: {e}")
 
-bedtime = st.text_input("What time do you usually go to bed? (e.g., 10:30 PM)")
-wake_time = st.text_input("What time do you usually wake up? (e.g., 6:30 AM)")
-consistency_rating = st.slider("Rate your bedtime consistency (1-10):", 1, 10, 7)
-stress_rating = st.slider("Rate your stress levels before bed (1-10):", 1, 10, 5)
+# Adding User Input for Chronotype Prediction (Youssef)
 
-if st.button("Submit Habit Log"):
-    st.write("### Habit Log Submitted")
-    st.write(f"Bedtime: {bedtime}")
-    st.write(f"Wake Time: {wake_time}")
-    st.write(f"Consistency Rating: {consistency_rating}")
-    st.write(f"Stress Rating: {stress_rating}")
+st.write("Input your sleep and stress metrics below to discover your chronotype!")
 
-    # Provide personalized suggestions
-    st.write("### Personalized Suggestions Based on Your Log")
-    if consistency_rating < 5:
-        st.write("- Improve bedtime consistency by setting an alarm for bedtime.")
-        st.write("- Avoid stimulating activities close to bedtime.")
-    if stress_rating > 7:
-        st.write("- Practice relaxation techniques like deep breathing or meditation.")
-        st.write("- Consider reducing screen time an hour before bed.")
-    st.write("- Maintain a regular wake-up time to improve overall sleep quality.")
+# User input section
+try:
+    hrv = st.number_input("Heart Rate Variability (ms)", min_value=30.0, max_value=150.0, value=60.0, step=1.0)
+    stress = st.slider("Stress Level (1-10)", min_value=1, max_value=10, value=5)
+    sleep_duration = st.number_input("Sleep Duration (hours)", min_value=3.0, max_value=12.0, value=7.0, step=0.5)
+    bedtime_consistency = st.slider("Bedtime Consistency (1-10)", min_value=1, max_value=10, value=7)
 
+    # Prepare user input for prediction
+    user_data = pd.DataFrame([[hrv, stress, sleep_duration, bedtime_consistency]],
+                             columns=chronotype_features)
+
+    if st.button("Predict My Chronotype"):
+        predicted_class = classifier.predict(user_data)[0]
+        confidence_scores = classifier.predict_proba(user_data)[0]
+
+        # Decode prediction
+        chronotype_labels = ['Early Bird', 'Intermediate', 'Night Owl']
+        predicted_label = chronotype_labels[predicted_class]
+
+        # Display prediction
+        st.subheader(f"Your Predicted Chronotype: **{predicted_label}**")
+
+        # Display confidence scores
+        st.write("**Confidence Scores:**")
+        for idx, chronotype in enumerate(chronotype_labels):
+            st.write(f"- {chronotype}: {confidence_scores[idx]*100:.2f}%")
+
+    
+except Exception as e:
+    st.error(f"An error occurred during user prediction: {e}")
 
 # Train Machine Learning on the data, then using user input, spit out a
-# predicted sleep score, user uses sliders to see how the sleep score changes (Justin/Youssef)
-
+# predicted sleep score, user uses sliders to see how the sleep score changes (Justin)
+ 
 ### Using these data because these are values that the "patient" can control
 st.subheader("Predict Your Sleep Quality Score")
 st.write("Enter the following values to predict your sleep quality score:")
-
-X = data[['Body_Temperature', 'Sleep_Duration_Hours', 'Caffeine_Intake_mg',
-          'Stress_Level', 'Bedtime_Consistency', 'Light_Exposure_hours']]
+ 
+X = data[['Sleep_Duration_Hours', 'Caffeine_Intake_mg', 'Stress_Level', 'Bedtime_Consistency', 'Light_Exposure_hours']]
 y = data['Sleep_Quality_Score']
-
+ 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+ 
 # Train the KNeighborsRegressor model
 knn = KNeighborsRegressor(n_neighbors=10, weights='uniform')
 knn.fit(X_train, y_train)
-
+ 
 # R-squared score for evaluation (optional, for display in the app)
 st.write(f"Model R-squared Score: {knn.score(X_test, y_test):.2f}")
-
+ 
 # User input for prediction
-st.subheader("Enter Your Data")
-body_temp = st.number_input("Body Temperature (°C):", min_value=35.0, max_value=40.0, value=36.5)
-sleep_duration = st.number_input("Sleep Duration (hours):", min_value=0.0, max_value=12.0, value=8.0)
-caffeine_intake = st.number_input("Caffeine Intake (mg):", min_value=0.0, max_value=500.0, value=50.0)
-stress_level = st.number_input("Stress Level (1-10):", min_value=1.0, max_value=10.0, value=5.0)
-bedtime_consistency = st.number_input("Bedtime Consistency (1-10):", min_value=1.0, max_value=10.0, value=7.0)
-light_exposure = st.number_input("Light Exposure (hours):", min_value=0.0, max_value=24.0, value=2.0)
-
-# Predicting based on user input
+st.subheader("Enter Your Data:")
+sleep_duration = st.number_input("Sleep Duration (hours):", min_value=0.0, max_value=24.0)
+caffeine_intake = st.number_input("Caffeine Intake (mg):", min_value=0.0, max_value=500.0)
+stress_level = st.number_input("Stress Level (0-10):", min_value=0.0, max_value=10.0)
+bedtime_consistency = st.number_input("Bedtime Consistency (0.0-1.0):", min_value=0.0, max_value=1.0)
+light_exposure = st.number_input("Light Exposure (hours):", min_value=0.0, max_value=24.0)
+ 
+# Predicting based on user input (Justin)
 if st.button("Predict"):
-    user_input = np.array([[body_temp, sleep_duration, caffeine_intake,
+    user_input = np.array([[sleep_duration, caffeine_intake,
                             stress_level, bedtime_consistency, light_exposure]])
     prediction = knn.predict(user_input)
     st.success(f"Your predicted sleep quality score is: {float(prediction[0]):.2f}")
-   
+# Grouped Bar Chart for Avg Sleep Duration, Caffeine Intake, Stress Level, Bedtime Consistency, and Light Exposure, Compared to User Entry
+st.subheader("Avg Prediction Metric Comparison (Grouped Bar Charts)")
+st.write("This chart compares averages of sleep durations and light exposure times compared to user.")
+ 
+# Averages for Grouped Bar Chart Comparison
+ 
+avg_sleepdur = X.loc[:, 'Sleep_Duration_Hours'].mean().round(2)
+avg_caffintake = X.loc[:, 'Caffeine_Intake_mg'].mean().round(2)
+avg_stresslvl = X.loc[:, 'Stress_Level'].mean().round(2)
+avg_bedconsis = X.loc[:, 'Bedtime_Consistency'].mean().round(2)
+avg_lightexpose = X.loc[:, 'Light_Exposure_hours'].mean().round(2)
+ 
+# Sleep Duration and Light Exposure
+ 
+groups = ['Sleep Duration', 'Light Exposure']
+values1 = [avg_sleepdur, avg_lightexpose]
+values2 = [sleep_duration, light_exposure]
+ 
+# Create positions for the bars
+x = np.arange(len(groups))
+width = 0.35
+ 
+# Create the figure and axes
+fig, ax = plt.subplots()
+ 
+# Plot the bars
+rects1 = ax.bar(x - width/2, values1, width, label='Average')
+rects2 = ax.bar(x + width/2, values2, width, label='User')
+ 
+# Add labels, title, and legend
+ax.set_ylabel('Values')
+ax.set_title('Sleep Duration and Light Exposure Grouped Bar Chart')
+ax.set_xticks(x)
+ax.set_xticklabels(groups)
+ax.legend()
+ 
+for p in ax.patches:
+    ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+ 
+st.pyplot(fig)
+ 
+# Caffeine Intake
+ 
+groups = ['Caffeine Intake']
+values1 = [avg_caffintake]
+values2 = [caffeine_intake]
+ 
+# Create positions for the bars
+x = np.arange(len(groups))
+width = 0.35
+ 
+# Create the figure and axes
+fig, ax = plt.subplots()
+ 
+# Plot the bars
+rects1 = ax.bar(x - width/2, values1, width, label='Average')
+rects2 = ax.bar(x + width/2, values2, width, label='User')
+ 
+# Add labels, title, and legend
+ax.set_ylabel('Values')
+ax.set_title('Caffeine Intake Grouped Bar Chart')
+ax.set_xticks(x)
+ax.set_xticklabels(groups)
+ax.legend()
+ 
+for p in ax.patches:
+    ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+ 
+st.pyplot(fig)
+ 
+# Stress Level
+ 
+groups = ['Stress Level']
+values1 = [avg_stresslvl]
+values2 = [stress_level]
+ 
+# Create positions for the bars
+x = np.arange(len(groups))
+width = 0.35
+ 
+# Create the figure and axes
+fig, ax = plt.subplots()
+ 
+# Plot the bars
+rects1 = ax.bar(x - width/2, values1, width, label='Average')
+rects2 = ax.bar(x + width/2, values2, width, label='User')
+ 
+# Add labels, title, and legend
+ax.set_ylabel('Values')
+ax.set_title('Stress Level Grouped Bar Chart')
+ax.set_xticks(x)
+ax.set_xticklabels(groups)
+ax.legend()
+ 
+for p in ax.patches:
+    ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+ 
+st.pyplot(fig)
+ 
+# Bedtime Consistency
+ 
+groups = ['Bedtime Consistency']
+values1 = [avg_bedconsis]
+values2 = [bedtime_consistency]
+ 
+# Create positions for the bars
+x = np.arange(len(groups))
+width = 0.35
+ 
+# Create the figure and axes
+fig, ax = plt.subplots()
+ 
+# Plot the bars
+rects1 = ax.bar(x - width/2, values1, width, label='Average')
+rects2 = ax.bar(x + width/2, values2, width, label='User')
+ 
+# Add labels, title, and legend
+ax.set_ylabel('Values')
+ax.set_title('Bedtime Consistency Grouped Bar Chart')
+ax.set_xticks(x)
+ax.set_xticklabels(groups)
+ax.legend()
+ 
+for p in ax.patches:
+    ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+ 
+st.pyplot(fig)
+
+#Advanced Visualizations (Youssef)
+st.subheader("Advanced Visualizations")
+st.write("Analyze how sleep duration varies across different chronotypes over time.")
+
+try:
+    # Ensure the data includes the 'Chronotype' column
+    if 'Chronotype' in data.columns:
+        # Create a line plot to visualize sleep trends by chronotype
+        advanced_fig = px.line(
+            data,
+            x=np.arange(len(data)),  # Assuming chronological order of entries
+            y='Sleep_Duration_Hours',
+            color='Chronotype',
+            title="Sleep Duration Trends by Chronotype",
+            labels={
+                'x': 'Entry Index', 
+                'Sleep_Duration_Hours': 'Sleep Duration (Hours)', 
+                'Chronotype': 'Chronotype'
+            }
+        )
+        # Update layout for better visualization
+        #using record index since we don't have dates or times of sleep logs in out dataset
+        advanced_fig.update_layout(
+            xaxis_title="Record Index (Chronological Order)",
+            yaxis_title="Sleep Duration (Hours)",
+            legend_title="Chronotype",
+            template="plotly_white"
+        )
+        # Display the chart
+        st.plotly_chart(advanced_fig)
+    else:
+        st.warning("The 'Chronotype' column is missing in the dataset. Please ensure chronotypes are defined.")
+except Exception as e:
+    st.error(f"An error occurred while generating the visualization: {e}")
+
+
+
+# Add a habit tracker section (Youssef)
+st.subheader("Habit Tracker and Optimization Suggestions")
+st.write("Log your habits and receive quick suggestions for better sleep and lower stress.")
+
+# User Inputs
+bedtime = st.text_input("What time do you go to bed? (e.g., 10:30 PM)")
+wake_time = st.text_input("What time do you wake up? (e.g., 6:30 AM)")
+consistency = st.slider("Rate your bedtime consistency (1-10):", 1, 10, 7)
+stress = st.slider("Rate your stress levels before bed (1-10):", 1, 10, 5)
+
+# Calculate Sleep Duration
+def calculate_sleep(bed, wake):
+    try:
+        from datetime import datetime, timedelta
+        bed_time = datetime.strptime(bed, "%I:%M %p")
+        wake_time = datetime.strptime(wake, "%I:%M %p")
+        if wake_time < bed_time:  # Handle overnight sleep
+            wake_time += timedelta(days=1)
+        return (wake_time - bed_time).total_seconds() / 3600  # Convert to hours
+    except:
+        return None
+
+if st.button("Submit Habit Log"):
+    sleep_duration = calculate_sleep(bedtime, wake_time)
+
+    # Display Results
+    st.write("### Your Habit Log")
+    st.write(f"Bedtime: {bedtime}")
+    st.write(f"Wake Time: {wake_time}")
+    st.write(f"Consistency Rating: {consistency}")
+    st.write(f"Stress Rating: {stress}")
+    
+    if sleep_duration is not None:
+        st.write(f"Estimated Sleep Duration: **{sleep_duration:.1f} hours**")
+    else:
+        st.error("Invalid time format. Use HH:MM AM/PM.")
+
+    # Suggestions
+    st.write("### Personalized Suggestions")
+    if sleep_duration is not None and sleep_duration < 6:
+        st.write("- Aim for 7-9 hours of sleep. Avoid caffeine in the evening.")
+    elif sleep_duration and sleep_duration >= 6:
+        st.write("- Good sleep duration! Focus on maintaining it.")
+    if consistency < 5:
+        st.write("- Improve bedtime consistency with a fixed schedule.")
+    if stress > 7:
+        st.write("- Reduce stress before bed with relaxation techniques or reading.")
+
+    st.write("- Maintain a cool, dark, and quiet sleep environment.")
+
+
