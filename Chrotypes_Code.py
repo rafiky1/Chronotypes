@@ -291,7 +291,7 @@ stress_level = st.number_input("Stress Level (0-10):", min_value=0.0, max_value=
 bedtime_consistency = st.number_input("Bedtime Consistency (0.0-1.0):", min_value=0.0, max_value=1.0)
 light_exposure = st.number_input("Light Exposure (hours):", min_value=0.0, max_value=24.0)
  
-# Predicting based on user input (Justin)
+# Predicting based on user input (Justin/Youssef)
 if st.button("Predict"):
     user_input = np.array([[sleep_duration, caffeine_intake,
                             stress_level, bedtime_consistency, light_exposure]])
